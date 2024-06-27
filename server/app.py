@@ -45,5 +45,41 @@ def most_expensive_baked_good():
     most_expensive_serialized = most_expensive.to_dict()
     return make_response( most_expensive_serialized,   200  )
 
+@app.route('/baked_goods', methods=['POST'])
+def create_baked_good():
+    data = request.form
+    name = data.get('name')
+    price = data.get('price')
+    bakery_id = data.get('bakery_id')
+
+    if not name or not price or not bakery_id:
+        return make_response({"error": "Missing required fields"}, 400)
+
+    baked_good = BakedGood(name=name, price=float(price), bakery_id=int(bakery_id))
+    db.session.add(baked_good)
+    db.session.commit()
+
+    return make_response(jsonify(baked_good.to_dict()), 201)
+
+@app.route('/bakeries/<int:id>', methods=['PATCH'])
+def update_bakery(id):
+    bakery = Bakery.query.get_or_404(id)
+    data = request.form
+    name = data.get('name')
+
+    if name:
+        bakery.name = name
+        db.session.commit()
+
+    return make_response(jsonify(bakery.to_dict()), 200)
+
+@app.route('/baked_goods/<int:id>', methods=['DELETE'])
+def delete_baked_good(id):
+    baked_good = BakedGood.query.get_or_404(id)
+    db.session.delete(baked_good)
+    db.session.commit()
+
+    return make_response({"message": "Baked good successfully deleted"}, 200)
+
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
