@@ -27,6 +27,7 @@ def bakeries():
 def bakery_by_id(id):
 
     bakery = Bakery.query.filter_by(id=id).first()
+    
     bakery_serialized = bakery.to_dict()
     return make_response ( bakery_serialized, 200  )
 
